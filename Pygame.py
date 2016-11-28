@@ -1,7 +1,3 @@
-#commit 6
-#commit 7
-#commit 8
-#commit 9
 import os
 import pygame
 pygame.init();
@@ -11,21 +7,30 @@ white = (255,255,255)
 #position vars
 background_x = 0
 background_y = 0
-mich_x = 50
-mich_y = 100
+mich_x = 10
+mich_y = 10
+
 
 class Michigan(pygame.sprite.Sprite):
-        WIDTH = 50
-        HEIGHT = 50
+        WIDTH = 25
+        HEIGHT = 25
         SINK_SPEED = 0.18
         CLIMB_SPEED = 0.3
         CLIMB_DURATION = 333.3
 
         def __init__(self, x, y, msec_to_climb, image):
                 super(Michigan, self).__init__()
-                self.x = mich_x
-                self.y = mich_y
                 self.image = image
+                self.image = pygame.transform.scale(self.image, (10,10))
+                self.rect = self.image.get_rect()
+                self.rect.x = x
+                self.rect.y = y
+                self.rect.height = 10
+                self.rect.width = 10
+                
+        def rect(self):
+                return self.image.get_rect()
+                
                 
 def load_images():
         def load_image(image_name):
@@ -39,10 +44,12 @@ def main():
         gameDisplay = pygame.display.set_mode((950,475))
         pygame.display.set_caption('Jessica Game')
         gameDisplay.fill(white)
-        pygame.display.update()		#only updates portion specified
+        pygame.display.update() #only updates portion specified
+        
         #create the dictionary of photos
         images = load_images()
         background = images['Michigan_Wolverines_Field']
+        mich_y = 10
         player = Michigan(mich_x, mich_y, 2, images['block_m'])
 
         gameExit = False
@@ -50,9 +57,15 @@ def main():
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                                 gameExit = True
+                        if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_UP:
+                                        player.rect.y -= 10
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
-                gameDisplay.blit(images['block_m'], (mich_x, mich_y))
+                gameDisplay.blit(images['block_m'], player.rect)
                 pygame.display.update()
+
+                player.update()
+                #print(player.rect)
 	
 main()
 
