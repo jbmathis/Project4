@@ -9,13 +9,11 @@ background_x = 0
 background_y = 0
 mich_x = 75
 mich_y = 225
+block_init_x = 600
+block_init_y_top = 50
+block_init_y_bottom = 375
 
 class Michigan(pygame.sprite.Sprite):
-        WIDTH = 25
-        HEIGHT = 25
-        SINK_SPEED = 0.18
-        CLIMB_SPEED = 0.3
-        CLIMB_DURATION = 333.3
 
         def __init__(self, x, y, msec_to_climb, image):
                 super(Michigan, self).__init__()
@@ -28,6 +26,17 @@ class Michigan(pygame.sprite.Sprite):
                 
         def rect(self):
                 return self.image.get_rect()
+
+class Block(pygame.sprite.Sprite):
+        
+        def __init__(self, x, y, image):
+                self.image = image
+                self.rect = self.image.get_rect()
+                self.rect.x = x
+                self.rect.y = y
+        def rect(self):
+                return self.image.get_rect()
+                
                 
                 
 def load_images():
@@ -35,7 +44,7 @@ def load_images():
                  img = pygame.image.load(os.path.join('images', image_name))
                  return img
         return {'Michigan_Wolverines_Field': load_image('Michigan_Wolverines_Field.bmp'),
-                'block_m': load_image('block_m.bmp')}
+                'block_m': load_image('block_m.bmp'), 'block': load_image('block.bmp')}
 
 
 def main():
@@ -60,20 +69,27 @@ def main():
                 if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
                                 player.rect.y -= 10
-                                
+
+                time = clock.tick()
+                time_elapsed += time
+                if time_elapsed % 5 == 0:
+                        player.rect.y += 20
+                        
+
+                if time_elapsed % 25 == 0:
+                        block_top = Block(block_init_x, block_init_y_top, images['block'])
+                        block_bottom = Block(block_init_x, block_init_y_bottom, images['block'])
+                        gameDisplay.blit(images['block'], block_top.rect)
+                        gameDisplay.blit(images['block'], block_bottom.rect)
+                        pygame.display.update()
+
+                if player.rect.y == 475:
+                        gameExit == True
+
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
                 gameDisplay.blit(images['block_m'], player.rect)
                 pygame.display.update()
                 player.update()
-
-                time = clock.tick()
-                time_elapsed += time
-                if time_elapsed >= 250:
-                        player.rect.y += 20
-                        time_elapsed = 0
-
-                if player.rect.y == 475:
-                        gameExit == True
 	
 main()
 
