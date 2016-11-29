@@ -1,5 +1,6 @@
 import os
 import pygame
+from collections import deque
 pygame.init();
 
 #colors
@@ -36,7 +37,7 @@ class Block(pygame.sprite.Sprite):
                 self.rect.y = y
         def rect(self):
                 return self.image.get_rect()
-        def move(self):
+        def update(self):
                 self.rect.x -= 10
                 
                 
@@ -61,9 +62,18 @@ def main():
         player = Michigan(mich_x, mich_y, 2, images['block_m'])
         block_top = Block(block_init_x, block_init_y_top, images['block'])
         block_bottom = Block(block_init_x, block_init_y_bottom, images['block'])
-
+        TOP_BLOCK_EVENT = Block(block_init_x, block_init_y_top, images['block'])
+        TOP_BLOCK_EVENT = pygame.USEREVENT + 1
+        BOTTOM_BLOCK_EVENT = pygame.USEREVENT + 2
+        
         clock = pygame.time.Clock()
         time_elapsed = 0
+
+        blocks = deque()
+        pygame.time.set_timer(TOP_BLOCK_EVENT, 500)
+        pygame.time.set_timer(BOTTOM_BLOCK_EVENT, 500)
+        blocks.append(block_top)
+        blocks.append(block_bottom)
         
         gameExit = False
         while not gameExit:
@@ -84,15 +94,20 @@ def main():
                         block_top.rect.x -= 5
                         block_bottom.rect.x -= 5
                         pygame.display.update()
+                        for block in blocks:
+                                block.update()
+                                gameDisplay.blit(images['block'], block_top.rect)
+                                gameDisplay.blit(images['block'], block_bottom.rect)
 
                 if player.rect.y == 475:
                         gameExit == True
+
 
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
                 gameDisplay.blit(images['block_m'], player.rect)
                 gameDisplay.blit(images['block'], block_top.rect)
                 gameDisplay.blit(images['block'], block_bottom.rect)
-                player.update()
+                #player.update()
         pygame.display.update()
         
 	
