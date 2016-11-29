@@ -10,7 +10,7 @@ background_y = 0
 mich_x = 75
 mich_y = 225
 block_init_x = 600
-block_init_y_top = 50
+block_init_y_top = 0
 block_init_y_bottom = 375
 
 class Michigan(pygame.sprite.Sprite):
@@ -36,6 +36,8 @@ class Block(pygame.sprite.Sprite):
                 self.rect.y = y
         def rect(self):
                 return self.image.get_rect()
+        def move(self):
+                self.rect.x -= 10
                 
                 
                 
@@ -57,6 +59,8 @@ def main():
         images = load_images()
         background = images['Michigan_Wolverines_Field']
         player = Michigan(mich_x, mich_y, 2, images['block_m'])
+        block_top = Block(block_init_x, block_init_y_top, images['block'])
+        block_bottom = Block(block_init_x, block_init_y_bottom, images['block'])
 
         clock = pygame.time.Clock()
         time_elapsed = 0
@@ -68,19 +72,17 @@ def main():
                                 gameExit = True
                 if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
-                                player.rect.y -= 10
+                                player.rect.y -= 5
 
                 time = clock.tick()
                 time_elapsed += time
                 if time_elapsed % 5 == 0:
-                        player.rect.y += 20
+                        player.rect.y += 5
+                player.update()
                         
-
                 if time_elapsed % 25 == 0:
-                        block_top = Block(block_init_x, block_init_y_top, images['block'])
-                        block_bottom = Block(block_init_x, block_init_y_bottom, images['block'])
-                        gameDisplay.blit(images['block'], block_top.rect)
-                        gameDisplay.blit(images['block'], block_bottom.rect)
+                        block_top.rect.x -= 5
+                        block_bottom.rect.x -= 5
                         pygame.display.update()
 
                 if player.rect.y == 475:
@@ -88,11 +90,13 @@ def main():
 
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
                 gameDisplay.blit(images['block_m'], player.rect)
-                pygame.display.update()
+                gameDisplay.blit(images['block'], block_top.rect)
+                gameDisplay.blit(images['block'], block_bottom.rect)
                 player.update()
+        pygame.display.update()
+        
 	
 main()
-
 #required
 pygame.quit()
 quit()	
