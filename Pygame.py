@@ -20,6 +20,8 @@ block_init_y_bottom = 375
 ref_init_y_bottom = 300
 
 everything = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
+user = pygame.sprite.Group()
 
 class Michigan(pygame.sprite.Sprite):
 
@@ -31,7 +33,9 @@ class Michigan(pygame.sprite.Sprite):
                 self.rect.y = y
                 self.rect.height = 10
                 self.rect.width = 10
+                self.health = 100
                 self.add(everything)
+                self.add(user)
 
         def rect(self):
                 return self.image.get_rect()
@@ -39,6 +43,9 @@ class Michigan(pygame.sprite.Sprite):
         def update(self):
                 self.rect.y += 5
                 self.rect.x += 1
+
+        def reduce_health(self):
+                self.health -= 5
 
 class Block(pygame.sprite.Sprite):
         
@@ -49,6 +56,7 @@ class Block(pygame.sprite.Sprite):
                 self.rect.x = x
                 self.rect.y = y
                 self.add(everything)
+                self.add(enemies)
                 
         def rect(self):
                 return self.image.get_rect()
@@ -103,8 +111,7 @@ def main():
                 
 
         health_font = pygame.font.SysFont(None, 32, bold=True)
-        health = 100
-        health_surface = health_font.render('Health: ' + str(health), True, (0, 0, 0))
+        health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
         gameDisplay.blit(health_surface, (100, 450))
         
         gameExit = False
@@ -117,6 +124,21 @@ def main():
                         if event.type == pygame.KEYDOWN:
                                 if event.key == pygame.K_UP:
                                         player.rect.y -= 75
+
+                for enemy in enemies:
+                        if player.rect.colliderect(enemy.rect):
+                                player.reduce_health()
+                                health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
+                                gameDisplay.blit(health_surface, (100, 450)) 
+
+                #hit_enemy = pygame.sprite.groupcollide(user, enemies, False, False)
+                #for k,v in hit_enemy.items():
+                        #print(v)
+                        #k.reduce_health()
+                        #print(k.health)
+                        #health_surface = health_font.render('Health: ' + str(k.health), True, (0, 0, 0))
+                        #gameDisplay.blit(health_surface, (100, 450))
+                        
 
                 if player.rect.y == 475 or player.rect.y == 0:
                         Lose = True
@@ -147,8 +169,6 @@ def main():
 
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
                 gameDisplay.blit(images['Harbaugh'], player.rect)
-                #gameDisplay.blit(images['block'], everything.Block.rect)
-                # gameDisplay.blit(images['block'], block_bottom.rect)
                 gameDisplay.blit(health_surface, (100, 450))
         
 main()
