@@ -17,6 +17,7 @@ mich_y = 100
 block_init_x = 800
 block_init_y_top = 0
 block_init_y_bottom = 375
+ref_init_y_bottom = 300
 
 everything = pygame.sprite.Group()
 
@@ -53,21 +54,14 @@ class Block(pygame.sprite.Sprite):
                 return self.image.get_rect()
         
         def update(self):
-                self.rect.x -= 10
+                self.rect.x -= 5
                 if self.rect.x < 0:
                         self.rect.x = random.randint(300,950)
 
-class Enemy(pygame.sprite.Sprite):
+class Referee(Block):
+        
         def __init__(self, x, y, image):
-                super(Enemy,self).__init__()
-                self.image = image
-                self.rect = self.image.get_rect()
-                self.rect.x = x
-                self.rect. y = y
-                self.add(everything)
-
-        def rect(self):
-                return self.image.get_rect()
+                Block.__init__(self, x, y, image)
 
         def update(self):
                 self.rect.x -= 10
@@ -77,9 +71,12 @@ class Enemy(pygame.sprite.Sprite):
 def load_images():
         def load_image(image_name):
                  img = pygame.image.load(os.path.join('images', image_name))
-                 return img.convert_alpha()
+                 img = img.convert_alpha()
+                 return img
         return {'Michigan_Wolverines_Field': load_image('Michigan_Wolverines_Field.bmp'),
-                'block_m': load_image('block_m.bmp'), 'block': load_image('block.bmp')}
+                'Harbaugh': load_image('Harbaugh.png'), 'block': load_image('block.bmp'),
+                'Game_Over': load_image('Game_Over.bmp'), 'ref_top': load_image('ref_top.png'),
+                'ref_bottom': load_image('ref_bottom.png'), 'Win_Screen': load_image('Win_Screen.png')}
 
 
 def main():
@@ -91,14 +88,19 @@ def main():
         
         #create the dictionary of photos
         images = load_images()
-        background = images['Michigan_Wolverines_Field']
 
         #create the player and the blocks
-        player = Michigan(mich_x, mich_y, images['block_m'])
-        for i in range(5):
-            pos_init = random.randint(300, 950)
-            Block(pos_init, block_init_y_top, images['block'])
-            Block(pos_init, block_init_y_bottom, images['block'])
+        player = Michigan(mich_x, mich_y, images['Harbaugh'])
+        for i in range(3):
+                pos_init = random.randint(300, 950)
+                Block(pos_init, block_init_y_top, images['block'])
+                Block(pos_init, block_init_y_bottom, images['block'])
+        for i in range(2):
+                pos_init_1 = random.randint(400, 950)
+                pos_init_2 = random.randint(400, 950)
+                Referee(pos_init_1, block_init_y_top, images['ref_top'])
+                Referee(pos_init_2, ref_init_y_bottom, images['ref_bottom'])
+                
 
         health_font = pygame.font.SysFont(None, 32, bold=True)
         health = 100
@@ -107,6 +109,7 @@ def main():
         
         gameExit = False
         Lose = False
+        Win = False
         while not gameExit:
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
@@ -118,16 +121,32 @@ def main():
                 if player.rect.y == 475 or player.rect.y == 0:
                         Lose = True
 
-                if Lose == True:
-                        pass                       
+                if player.rect.x == 760:
+                        Win = True
 
-                everything.clear(gameDisplay, empty)
+                if Lose == True:
+                        for sprite in everything.sprites():
+                                sprite.kill()
+                        gameDisplay.fill(white)
+                        gameDisplay.blit(images['Game_Over'], (background_x, background_y))
+                        pygame.display.update()
+                        gameExit = True
+
+                if Win == True:
+                        for sprite in everything.sprites():
+                                sprite.kill()
+                                gameDisplay.fill(white)
+                                gameDisplay.blit(images['Win_Screen'], (background_x, background_y))
+                                pygame.display.update()
+                                gameExit = True                       
+                        
+
                 everything.update()
                 everything.draw(gameDisplay)
                 pygame.display.flip()
 
                 gameDisplay.blit(images['Michigan_Wolverines_Field'], (background_x, background_y))
-                gameDisplay.blit(images['block_m'], player.rect)
+                gameDisplay.blit(images['Harbaugh'], player.rect)
                 #gameDisplay.blit(images['block'], everything.Block.rect)
                 # gameDisplay.blit(images['block'], block_bottom.rect)
                 gameDisplay.blit(health_surface, (100, 450))
