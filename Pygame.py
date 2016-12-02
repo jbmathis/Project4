@@ -121,8 +121,9 @@ def main():
         Lose = False
         Win = False
 
-        sound = pygame.mixer.Sound(stadium_sound.wav)
-        sound.play()
+        background_sound = pygame.mixer.Sound('stadium_sound.wav')        
+        background_sound.play()
+        collision_sound = pygame.mixer.Sound('referee.wav')
         
         while not gameExit:
                 for event in pygame.event.get():
@@ -135,6 +136,7 @@ def main():
                 collisions = pygame.sprite.spritecollide(player, enemies, False)
                 for collision in collisions:
                     player.reduce_health()
+                    collision_sound.play()
                     health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
                     gameDisplay.blit(health_surface, (100, 450))                   
 
@@ -151,8 +153,10 @@ def main():
                         #print(k.health)
                         #health_surface = health_font.render('Health: ' + str(k.health), True, (0, 0, 0))
                         #gameDisplay.blit(health_surface, (100, 450))
+                
+                if player.health <= 0:
+                        Lose = True
                         
-
                 if player.rect.y == 475 or player.rect.y == 0:
                         Lose = True
 
