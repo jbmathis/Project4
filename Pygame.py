@@ -1,5 +1,6 @@
 import os
 import pygame
+import pygame.mixer
 import random
 import sys
 pygame.init();
@@ -8,7 +9,7 @@ pygame.init();
 white = (255,255,255)
 #window size
 X_MAX = 950
-Y_MAX = 475
+Y_MAX = 472
 #position vars
 background_x = 0
 background_y = 0
@@ -18,10 +19,12 @@ block_init_x = 800
 block_init_y_top = 0
 block_init_y_bottom = 375
 ref_init_y_bottom = 300
+win_screen_x = 53
+lose_screen_x = 130
 
 everything = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
-user = pygame.sprite.Group()
+#user = pygame.sprite.Group()
 
 class Michigan(pygame.sprite.Sprite):
 
@@ -35,7 +38,7 @@ class Michigan(pygame.sprite.Sprite):
                 self.rect.width = 10
                 self.health = 100
                 self.add(everything)
-                self.add(user)
+                #self.add(user)
 
         def rect(self):
                 return self.image.get_rect()
@@ -92,7 +95,7 @@ def main():
         pygame.display.set_caption('B1G Flappy Bird')
         gameDisplay.fill(white)
         pygame.display.update()
-        empty = pygame.Surface((X_MAX, Y_MAX))
+        #empty = pygame.Surface((X_MAX, Y_MAX))
         
         #create the dictionary of photos
         images = load_images()
@@ -117,6 +120,10 @@ def main():
         gameExit = False
         Lose = False
         Win = False
+
+        sound = pygame.mixer.Sound(stadium_sound.wav)
+        sound.play()
+        
         while not gameExit:
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
@@ -125,11 +132,17 @@ def main():
                                 if event.key == pygame.K_UP:
                                         player.rect.y -= 75
 
-                for enemy in enemies:
-                        if player.rect.colliderect(enemy.rect):
-                                player.reduce_health()
-                                health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
-                                gameDisplay.blit(health_surface, (100, 450)) 
+                collisions = pygame.sprite.spritecollide(player, enemies, False)
+                for collision in collisions:
+                    player.reduce_health()
+                    health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
+                    gameDisplay.blit(health_surface, (100, 450))                   
+
+                # for enemy in enemies:
+                #         if player.rect.colliderect(enemy.rect):
+                #                 player.reduce_health()
+                #                 health_surface = health_font.render('Health: ' + str(player.health), True, (0, 0, 0))
+                #                 gameDisplay.blit(health_surface, (100, 450)) 
 
                 #hit_enemy = pygame.sprite.groupcollide(user, enemies, False, False)
                 #for k,v in hit_enemy.items():
@@ -150,18 +163,40 @@ def main():
                         for sprite in everything.sprites():
                                 sprite.kill()
                         gameDisplay.fill(white)
-                        gameDisplay.blit(images['Game_Over'], (background_x, background_y))
+                        gameDisplay.blit(images['Game_Over'], (lose_screen_x, background_y))
+                        font = pygame.font.SysFont('times new roman', 32)
+                        score_font = pygame.font.SysFont('times new roman', 40, True)
+                        over_surface = font.render('\"I\'m bitterly disappointed', True, white)
+                        gameDisplay.blit(over_surface, (490, 100))
+                        over_surface = font.render('with the officiating', True, white)
+                        gameDisplay.blit(over_surface, (515, 140))
+                        over_surface = font.render('of this game.\"', True, white)
+                        gameDisplay.blit(over_surface, (530, 180))
+                        over_surface = score_font.render('Try again!', True, white)
+                        gameDisplay.blit(over_surface, (590, 220))
                         pygame.display.update()
-                        gameExit = True
+                        exit()
+                        #gameExit = True
 
                 if Win == True:
                         for sprite in everything.sprites():
                                 sprite.kill()
-                                gameDisplay.fill(white)
-                                gameDisplay.blit(images['Win_Screen'], (background_x, background_y))
-                                pygame.display.update()
-                                gameExit = True                       
-                        
+                        gameDisplay.fill(white)
+                        gameDisplay.blit(images['Win_Screen'], (win_screen_x, background_y))
+                        font = pygame.font.SysFont('times new roman', 32)
+                        score_font = pygame.font.SysFont('times new roman', 40, True)
+                        over_surface = font.render('You attacked this game', True, white)
+                        gameDisplay.blit(over_surface, (80, 100))
+                        over_surface = font.render('with an enthusiasm', True, white)
+                        gameDisplay.blit(over_surface, (80, 150))
+                        over_surface = font.render('unknown to mankind!', True, white)
+                        gameDisplay.blit(over_surface, (80, 200))
+                        over_surface = score_font.render('Score: ' + str(player.health), True, white)
+                        gameDisplay.blit(over_surface, (115, 250))
+                        pygame.display.update()
+                        exit()
+                        #gameExit = True                       
+                
 
                 everything.update()
                 everything.draw(gameDisplay)
